@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>РОФЕС</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://unpkg.com/@lottiefiles/tgskit@0.0.4/dist/tgskit.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
 
 <style>
 :root {
@@ -521,7 +522,7 @@ body {
     <!-- HERO с уткой -->
     <div class="hero">
       <div class="duck-wrap">
-        <tgs-player src="/sticker" style="width:120px;height:120px" autoplay loop></tgs-player>
+        <div id="duck-lottie" style="width:120px;height:120px"></div>
       </div>
       <div class="hero-title">Реферальная программа</div>
       <div class="hero-sub">Приводи друзей — получай Premium 🎁</div>
@@ -771,6 +772,26 @@ document.getElementById("share-btn").addEventListener("click", () => {
     `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent("Попробуй РОФЕС — безумный орущий бот 🔥")}`
   );
 });
+
+// ──── DUCK STICKER ────
+(async () => {
+  try {
+    const resp = await fetch("/sticker");
+    const buf  = await resp.arrayBuffer();
+    const json = JSON.parse(pako.inflate(new Uint8Array(buf), { to: "string" }));
+    lottie.loadAnimation({
+      container:     document.getElementById("duck-lottie"),
+      animationData: json,
+      renderer:      "svg",
+      loop:          true,
+      autoplay:      true,
+    });
+  } catch(e) {
+    document.getElementById("duck-lottie").textContent = "🐥";
+    document.getElementById("duck-lottie").style.fontSize = "80px";
+  }
+})();
+
 </script>
 </body>
 </html>
