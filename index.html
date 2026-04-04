@@ -5,34 +5,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>РОФЕС</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
-
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --pink:    #f0506e;
-  --pink2:   #ff7597;
-  --coral:   #ff8c69;
-  --bg-page: #f0f0f5;
-  --bg-card: #ffffff;
+  --bg:      #f2f2f7;
+  --bg2:     #ffffff;
+  --bg3:     #e8e8ef;
   --fg:      #1a1a2e;
-  --fg-sub:  #8a8aaa;
-  --gold:    #f5a623;
-  --purple:  #7b52c1;
+  --sub:     #8e8ea0;
+  --accent:  #5b5bd6;
+  --accent2: #7c7ce8;
+  --red:     #ff3b30;
   --green:   #34c759;
-  --sep:     rgba(0,0,0,0.06);
-  --radius:  18px;
-  --shadow:  0 2px 16px rgba(0,0,0,0.08);
-
-  /* Telegram theme overrides */
-  --tg-bg: var(--tg-theme-bg-color, var(--bg-page));
+  --gold:    #d4891a;
+  --purple:  #7b52c1;
+  --sep:     rgba(0,0,0,0.07);
+  --r:       16px;
+  --r-sm:    12px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Segoe UI", sans-serif;
-  background: var(--bg-page);
+  font-family: 'Manrope', sans-serif;
+  background: var(--bg);
   color: var(--fg);
   height: 100dvh;
   display: flex;
@@ -41,451 +37,277 @@ body {
   font-size: 15px;
 }
 
-/* ──────────────── PAGES ──────────────── */
-.pages {
-  flex: 1;
-  overflow: hidden;
-  position: relative;
-}
+/* ── PAGES ── */
+.pages { flex: 1; overflow: hidden; position: relative; }
 .page {
-  position: absolute;
-  inset: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  display: none;
-  flex-direction: column;
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity .2s ease, transform .2s ease;
-  padding-bottom: 90px;
+  position: absolute; inset: 0;
+  overflow-y: auto; overflow-x: hidden;
+  display: none; flex-direction: column;
+  opacity: 0; transform: translateY(6px);
+  transition: opacity .2s, transform .2s;
+  padding-bottom: 80px;
 }
-.page.active {
-  display: flex;
-  opacity: 1;
-  transform: translateY(0);
-}
+.page.active { display: flex; opacity: 1; transform: none; }
 
-/* ──────────────── BOTTOM PILL BUTTONS ──────────────── */
-.bottom-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0; right: 0;
-  display: flex;
-  gap: 10px;
-  padding: 12px 16px;
-  padding-bottom: max(16px, env(safe-area-inset-bottom));
-  background: rgba(240,240,245,0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+/* ── BOTTOM NAV ── */
+.nav {
+  display: flex; gap: 8px;
+  padding: 10px 14px;
+  padding-bottom: max(14px, env(safe-area-inset-bottom));
+  background: rgba(242,242,247,0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid var(--sep);
+  position: fixed; bottom: 0; left: 0; right: 0;
   z-index: 100;
 }
+.nav-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 12px 16px; border-radius: 50px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 14px; font-weight: 700;
+  cursor: pointer; border: none;
+  transition: all .15s; user-select: none;
+}
+.nav-btn.active  { background: var(--accent); color: #fff; box-shadow: 0 0 20px rgba(91,91,214,0.2); }
+.nav-btn.inactive { background: var(--bg3); color: var(--sub); }
+.nav-btn:active  { transform: scale(.95); }
+.nav-icon { font-size: 18px; }
 
-.pill-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 14px 20px;
-  border-radius: 50px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  transition: transform .12s, opacity .12s;
-  user-select: none;
-}
-.pill-btn:active { transform: scale(.95); opacity: .85; }
-
-.pill-btn.primary {
-  background: linear-gradient(135deg, var(--pink) 0%, var(--coral) 100%);
-  color: #fff;
-  box-shadow: 0 4px 20px rgba(240,80,110,0.35);
-}
-.pill-btn.secondary {
-  background: var(--bg-card);
-  color: var(--fg);
-  box-shadow: var(--shadow);
-}
-.pill-btn.active-tab {
-  background: linear-gradient(135deg, var(--pink) 0%, var(--coral) 100%);
-  color: #fff;
-  box-shadow: 0 4px 20px rgba(240,80,110,0.3);
-}
-.pill-btn.inactive-tab {
-  background: var(--bg-card);
-  color: var(--fg-sub);
-  box-shadow: var(--shadow);
-}
-
-.pill-icon { font-size: 20px; }
-.pill-badge {
-  background: var(--pink);
-  color: #fff;
-  border-radius: 50px;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 7px;
-  min-width: 20px;
-  text-align: center;
-}
-
-/* ──────────────── HERO ──────────────── */
+/* ── HERO ── */
 .hero {
-  background: linear-gradient(160deg, #ff6b9d 0%, #f0506e 40%, #ff8c69 100%);
-  border-radius: 0 0 28px 28px;
-  padding: 28px 20px 32px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  position: relative;
-  overflow: hidden;
+  background: var(--bg2);
+  margin: 12px 12px 0;
+  border-radius: 20px;
+  padding: 24px 20px;
+  position: relative; overflow: hidden;
+  border: 1px solid var(--sep);
 }
 .hero::before {
   content: '';
-  position: absolute;
-  top: -40px; right: -40px;
-  width: 180px; height: 180px;
-  background: rgba(255,255,255,0.08);
+  position: absolute; top: -60px; right: -60px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(91,91,214,0.06) 0%, transparent 70%);
   border-radius: 50%;
+  pointer-events: none;
 }
-.hero::after {
-  content: '';
-  position: absolute;
-  bottom: -50px; left: -20px;
-  width: 140px; height: 140px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 50%;
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(91,91,214,0.08);
+  border: 1px solid rgba(91,91,214,0.15);
+  color: var(--accent); border-radius: 50px;
+  padding: 4px 12px; font-size: 11px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase;
+  margin-bottom: 12px;
 }
-
-.duck-wrap {
-  font-size: 90px;
-  line-height: 1;
-  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.2));
-  animation: duckBounce 2.4s ease-in-out infinite;
-  position: relative;
-  z-index: 1;
-}
-@keyframes duckBounce {
-  0%,100% { transform: translateY(0) rotate(-3deg); }
-  50%      { transform: translateY(-8px) rotate(3deg); }
-}
-
 .hero-title {
-  font-size: 26px;
-  font-weight: 800;
-  color: #fff;
-  text-align: center;
-  letter-spacing: -0.5px;
-  position: relative; z-index: 1;
+  font-family: 'Unbounded', sans-serif;
+  font-size: 20px; font-weight: 900;
+  color: var(--fg); line-height: 1.25; margin-bottom: 6px;
 }
-.hero-sub {
-  background: rgba(255,255,255,0.2);
-  color: rgba(255,255,255,0.9);
-  border-radius: 50px;
-  padding: 6px 16px;
-  font-size: 13px;
-  font-weight: 500;
-  position: relative; z-index: 1;
-  backdrop-filter: blur(10px);
-}
+.hero-sub { font-size: 13px; color: var(--sub); line-height: 1.5; }
 
-/* ──────────────── CARDS ──────────────── */
-.cards {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 16px 14px 0;
-}
-
+/* ── CARDS ── */
+.cards { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px 0; }
 .card {
-  background: var(--bg-card);
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--shadow);
+  background: var(--bg2); border-radius: var(--r);
+  border: 1px solid var(--sep); overflow: hidden;
 }
-
-.card-header {
-  padding: 16px 16px 4px;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--fg-sub);
-  text-transform: uppercase;
-  letter-spacing: .08em;
+.card-label {
+  font-size: 10px; font-weight: 700; color: var(--sub);
+  text-transform: uppercase; letter-spacing: .1em;
+  padding: 14px 16px 4px;
 }
 
 .stat-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--sep);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-bottom: 1px solid var(--sep);
 }
 .stat-row:last-child { border-bottom: none; }
-.stat-label { font-size: 15px; color: var(--fg); }
-.stat-val {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--fg);
-}
+.stat-label { font-size: 14px; color: var(--sub); }
+.stat-val   { font-size: 15px; font-weight: 700; color: var(--fg); }
 
 .badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 50px;
-  font-size: 12px;
-  font-weight: 600;
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 50px;
+  font-size: 11px; font-weight: 700;
 }
-.badge-gold   { background: rgba(245,166,35,.12); color: #d4891a; }
-.badge-purple { background: rgba(123,82,193,.12); color: var(--purple); }
-.badge-gray   { background: rgba(138,138,170,.1); color: var(--fg-sub); }
+.badge-gold   { background: rgba(255,204,0,.1); color: var(--gold); }
+.badge-purple { background: rgba(167,139,250,.1); color: var(--purple); }
+.badge-gray   { background: rgba(107,107,128,.15); color: var(--sub); }
 
 /* Progress */
-.progress-card { padding: 14px 16px 16px; }
-.progress-top  {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  color: var(--fg-sub);
-  margin-bottom: 10px;
+.prog-wrap { padding: 14px 16px 16px; }
+.prog-top {
+  display: flex; justify-content: space-between;
+  font-size: 12px; color: var(--sub); margin-bottom: 10px;
 }
-.progress-top strong { color: var(--fg); }
-.progress-track {
-  height: 8px;
-  background: rgba(0,0,0,0.07);
-  border-radius: 50px;
-  overflow: hidden;
-}
-.progress-fill {
+.prog-top strong { color: var(--fg); }
+.prog-track { height: 6px; background: var(--bg3); border-radius: 50px; overflow: hidden; }
+.prog-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--pink) 0%, var(--coral) 100%);
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent2) 100%);
   border-radius: 50px;
-  transition: width .6s cubic-bezier(.34,1.56,.64,1);
+  transition: width .7s cubic-bezier(.34,1.56,.64,1);
+  box-shadow: 0 0 10px rgba(91,91,214,0.3);
 }
 
-/* Reward rows */
+/* Rewards */
 .reward-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 13px 16px;
-  border-bottom: 1px solid var(--sep);
+  display: flex; align-items: center; gap: 14px;
+  padding: 13px 16px; border-bottom: 1px solid var(--sep);
 }
 .reward-row:last-child { border-bottom: none; }
 .reward-icon {
-  width: 42px; height: 42px;
-  border-radius: 14px;
+  width: 40px; height: 40px; border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-  flex-shrink: 0;
+  font-size: 20px; flex-shrink: 0;
 }
-.ri-gold   { background: rgba(245,166,35,.12); }
-.ri-purple { background: rgba(123,82,193,.12); }
-.reward-label { font-size: 15px; font-weight: 600; color: var(--fg); }
-.reward-sub   { font-size: 12px; color: var(--fg-sub); margin-top: 2px; }
+.ri-gold   { background: rgba(255,204,0,.08); }
+.ri-purple { background: rgba(167,139,250,.08); }
+.reward-label { font-size: 14px; font-weight: 600; color: var(--fg); }
+.reward-sub   { font-size: 12px; color: var(--sub); margin-top: 2px; }
 
-/* Link card */
-.link-block { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
-.link-pill {
-  display: flex;
-  align-items: center;
-  background: var(--bg-page);
-  border-radius: 12px;
-  padding: 0 6px 0 14px;
-  gap: 8px;
-  min-height: 46px;
+/* Link */
+.link-wrap { padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+.link-row {
+  display: flex; align-items: center;
+  background: var(--bg3); border-radius: var(--r-sm);
+  padding: 0 6px 0 14px; gap: 8px; min-height: 46px;
 }
 .link-text {
-  flex: 1;
-  font-size: 13px;
-  color: var(--fg-sub);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  flex: 1; font-size: 12px; color: var(--sub);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .copy-btn {
-  background: var(--bg-card);
-  border: none;
-  border-radius: 10px;
-  padding: 8px 14px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--pink);
-  cursor: pointer;
-  flex-shrink: 0;
+  background: var(--bg2); border: 1px solid var(--sep);
+  border-radius: 8px; padding: 7px 12px;
+  font-size: 12px; font-weight: 700; color: var(--accent);
+  cursor: pointer; flex-shrink: 0;
+  font-family: 'Manrope', sans-serif;
   transition: opacity .12s;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
 }
-.copy-btn:active { opacity: .7; }
+.copy-btn:active { opacity: .6; }
 .copy-btn.copied { color: var(--green); }
 
-.share-big {
-  width: 100%;
-  background: linear-gradient(135deg, var(--pink) 0%, var(--coral) 100%);
-  color: #fff;
-  border: none;
-  border-radius: 14px;
-  padding: 15px;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
+.share-btn {
+  width: 100%; background: var(--accent); color: #fff;
+  border: none; border-radius: var(--r-sm);
+  padding: 15px; font-size: 15px; font-weight: 800;
+  cursor: pointer; font-family: 'Unbounded', sans-serif;
+  letter-spacing: -.3px;
   transition: transform .12s, opacity .12s;
-  box-shadow: 0 4px 20px rgba(240,80,110,0.3);
-  letter-spacing: -0.2px;
+  box-shadow: 0 4px 20px rgba(91,91,214,0.25);
 }
-.share-big:active { transform: scale(.97); opacity: .9; }
+.share-btn:active { transform: scale(.97); opacity: .9; }
 
-/* ──────────────── CHAT PAGE ──────────────── */
-#chat-page { padding-bottom: 90px; }
+/* ── CHAT ── */
+#chat-page { padding-bottom: 80px; }
 
 .chat-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  display: flex; align-items: center; gap: 12px;
   padding: 14px 16px 12px;
-  background: var(--bg-card);
-  border-bottom: 1px solid var(--sep);
+  background: var(--bg2); border-bottom: 1px solid var(--sep);
   flex-shrink: 0;
 }
 .avatar {
-  width: 42px; height: 42px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--pink) 0%, var(--coral) 100%);
+  width: 42px; height: 42px; border-radius: 14px;
+  background: var(--accent);
   display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-  flex-shrink: 0;
+  font-size: 22px; flex-shrink: 0;
 }
-.chat-name { font-weight: 700; font-size: 16px; color: var(--fg); }
-.chat-sub  { font-size: 12px; color: var(--fg-sub); margin-top: 1px; }
+.chat-name {
+  font-family: 'Unbounded', sans-serif;
+  font-weight: 700; font-size: 14px; color: var(--fg);
+}
+.chat-sub  { font-size: 12px; color: var(--sub); margin-top: 2px; }
 .online-dot {
-  width: 9px; height: 9px;
-  background: var(--green);
-  border-radius: 50%;
-  flex-shrink: 0;
-  margin-left: auto;
-  box-shadow: 0 0 0 2px rgba(52,199,89,0.2);
+  width: 8px; height: 8px; background: var(--green);
+  border-radius: 50%; margin-left: auto; flex-shrink: 0;
+  box-shadow: 0 0 8px var(--green);
 }
 
 #chat-messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 14px 14px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background: var(--bg-page);
+  flex: 1; overflow-y: auto;
+  padding: 14px 12px 8px;
+  display: flex; flex-direction: column; gap: 8px;
+  background: var(--bg);
 }
 
 .bubble {
-  max-width: 78%;
-  padding: 10px 14px;
-  border-radius: 18px;
-  font-size: 15px;
-  line-height: 1.45;
-  word-break: break-word;
-  white-space: pre-wrap;
+  max-width: 78%; padding: 10px 14px; border-radius: 18px;
+  font-size: 15px; line-height: 1.45;
+  word-break: break-word; white-space: pre-wrap;
   animation: pop .16s ease;
 }
 @keyframes pop {
   from { opacity:0; transform: scale(.94) translateY(4px); }
-  to   { opacity:1; transform: scale(1) translateY(0); }
+  to   { opacity:1; transform: none; }
 }
 .bubble.user {
   align-self: flex-end;
-  background: linear-gradient(135deg, var(--pink) 0%, var(--coral) 100%);
-  color: #fff;
+  background: var(--accent); color: #fff; font-weight: 600;
   border-bottom-right-radius: 5px;
-  box-shadow: 0 2px 12px rgba(240,80,110,0.25);
+  box-shadow: 0 2px 12px rgba(91,91,214,0.2);
 }
 .bubble.bot {
   align-self: flex-start;
-  background: var(--bg-card);
-  color: var(--fg);
+  background: var(--bg2); color: var(--fg);
   border-bottom-left-radius: 5px;
-  box-shadow: var(--shadow);
+  border: 1px solid var(--sep);
 }
-.bubble.typing {
-  color: var(--fg-sub);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 12px 16px;
-}
+.bubble.typing { display: flex; align-items: center; gap: 4px; padding: 12px 16px; }
 .dots span {
-  display: inline-block;
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--fg-sub);
+  display: inline-block; width: 6px; height: 6px;
+  border-radius: 50%; background: var(--sub);
   animation: blink 1.2s infinite;
 }
 .dots span:nth-child(2) { animation-delay: .2s; }
 .dots span:nth-child(3) { animation-delay: .4s; }
 @keyframes blink {
   0%,80%,100% { opacity:.3; transform: translateY(0); }
-  40%          { opacity:1;  transform: translateY(-3px); }
+  40%          { opacity:1; transform: translateY(-3px); }
 }
 
 .chat-footer {
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
-  padding: 10px 12px;
-  padding-bottom: max(10px, env(safe-area-inset-bottom));
-  background: var(--bg-card);
-  border-top: 1px solid var(--sep);
+  display: flex; align-items: flex-end; gap: 8px;
+  padding: 8px 10px;
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+  background: var(--bg2); border-top: 1px solid var(--sep);
   flex-shrink: 0;
 }
 #chat-input {
-  flex: 1;
-  background: var(--bg-page);
-  border: 1.5px solid transparent;
-  border-radius: 22px;
-  padding: 10px 16px;
-  color: var(--fg);
-  font-size: 15px;
-  outline: none;
-  resize: none;
-  max-height: 110px;
-  font-family: inherit;
-  line-height: 1.4;
+  flex: 1; background: var(--bg3);
+  border: 1px solid var(--sep); border-radius: 20px;
+  padding: 10px 16px; color: var(--fg); font-size: 15px;
+  outline: none; resize: none; max-height: 110px;
+  font-family: 'Manrope', sans-serif; line-height: 1.4;
   transition: border-color .15s;
 }
-#chat-input:focus { border-color: rgba(240,80,110,0.3); }
-#chat-input::placeholder { color: var(--fg-sub); }
+#chat-input:focus { border-color: rgba(91,91,214,0.3); }
+#chat-input::placeholder { color: var(--sub); }
 #send-btn {
-  width: 42px; height: 42px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--pink) 0%, var(--coral) 100%);
-  border: none;
-  cursor: pointer;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: var(--accent); border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-  transition: opacity .12s, transform .1s;
-  box-shadow: 0 3px 12px rgba(240,80,110,0.35);
+  flex-shrink: 0; transition: opacity .12s, transform .1s;
+  box-shadow: 0 4px 16px rgba(91,91,214,0.3);
 }
 #send-btn:active { opacity:.75; transform: scale(.9); }
 #send-btn svg { width: 18px; height: 18px; fill: #fff; }
 
-/* ──────────────── SKELETON ──────────────── */
+/* ── SKELETON ── */
 .skel {
-  background: linear-gradient(90deg, rgba(0,0,0,0.06) 25%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.06) 75%);
-  background-size: 200% 100%;
-  border-radius: 8px;
+  background: linear-gradient(90deg, var(--bg3) 25%, rgba(255,255,255,0.03) 50%, var(--bg3) 75%);
+  background-size: 200% 100%; border-radius: 8px;
   animation: shimmer 1.4s ease-in-out infinite;
 }
 @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-.skel-h { height: 16px; margin-bottom: 8px; width: 100%; }
-.skel-h.short { width: 55%; }
-
+.skel-h { height: 14px; width: 100%; }
+.skel-h.short { width: 50%; }
 .error-note {
-  text-align: center;
-  padding: 20px 16px;
-  color: var(--fg-sub);
-  font-size: 13px;
-  line-height: 1.6;
+  text-align: center; padding: 20px 16px;
+  color: var(--sub); font-size: 13px; line-height: 1.6;
 }
 </style>
 </head>
@@ -493,122 +315,109 @@ body {
 
 <div class="pages">
 
-  <!-- ──── CHAT PAGE ──── -->
+  <!-- CHAT -->
   <div id="chat-page" class="page active">
     <div class="chat-header">
-      <div class="avatar">🔥</div>
+      <div class="avatar">😂</div>
       <div>
         <div class="chat-name">РОФЕС</div>
-        <div class="chat-sub">ИИ-бот без тормозов</div>
+        <div class="chat-sub">ИИ без тормозов</div>
       </div>
       <div class="online-dot"></div>
     </div>
-
     <div id="chat-messages">
-      <div class="bubble bot">РОФЕС В ДЕЛЕ 🔥 ЧЕ НАДО</div>
+      <div class="bubble bot">РОФЕС В ДЕЛЕ 😂 ЧЕ НАДО</div>
     </div>
-
     <div class="chat-footer">
       <textarea id="chat-input" placeholder="Напиши что-нибудь..." rows="1"></textarea>
-      <button id="send-btn" aria-label="Отправить">
+      <button id="send-btn">
         <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
       </button>
     </div>
   </div>
 
-  <!-- ──── REF PAGE ──── -->
+  <!-- REF -->
   <div id="ref-page" class="page">
-
-    <!-- HERO с уткой -->
     <div class="hero">
-      <div class="duck-wrap">
-        <div id="duck-lottie" style="width:120px;height:120px"></div>
-      </div>
-      <div class="hero-title">Реферальная программа</div>
-      <div class="hero-sub">Приводи друзей — получай Premium 🎁</div>
+      <div class="hero-tag">🚀 Реферальная программа</div>
+      <div class="hero-title">Зови друзей —<br>получай Premium</div>
+      <div class="hero-sub">Каждый приглашённый = +1 день подписки</div>
     </div>
 
     <div class="cards">
 
-      <!-- Статистика -->
       <div class="card">
-        <div class="card-header">Твоя статистика</div>
+        <div class="card-label">Статистика</div>
         <div id="stats-body">
           <div class="stat-row">
-            <div class="skel skel-h" style="width:35%"></div>
-            <div class="skel skel-h" style="width:45%"></div>
+            <div class="skel skel-h" style="width:30%"></div>
+            <div class="skel skel-h" style="width:40%"></div>
           </div>
           <div class="stat-row">
-            <div class="skel skel-h" style="width:50%"></div>
+            <div class="skel skel-h" style="width:45%"></div>
             <div class="skel skel-h short"></div>
           </div>
           <div class="stat-row">
-            <div class="skel skel-h" style="width:40%"></div>
+            <div class="skel skel-h" style="width:35%"></div>
             <div class="skel skel-h short"></div>
           </div>
         </div>
       </div>
 
-      <!-- Прогресс до Super -->
       <div class="card" id="progress-section" style="display:none">
-        <div class="progress-card">
-          <div class="progress-top">
+        <div class="prog-wrap">
+          <div class="prog-top">
             <span>До следующего 💎 Super-дня</span>
             <strong id="progress-label">—</strong>
           </div>
-          <div class="progress-track">
-            <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+          <div class="prog-track">
+            <div class="prog-fill" id="progress-fill" style="width:0%"></div>
           </div>
         </div>
       </div>
 
-      <!-- Награды -->
       <div class="card">
-        <div class="card-header">Награды</div>
+        <div class="card-label">Награды</div>
         <div class="reward-row">
           <div class="reward-icon ri-gold">⭐</div>
           <div>
             <div class="reward-label">+1 день Standard</div>
-            <div class="reward-sub">За каждого приглашённого друга</div>
+            <div class="reward-sub">За каждого приглашённого</div>
           </div>
         </div>
         <div class="reward-row">
           <div class="reward-icon ri-purple">💎</div>
           <div>
             <div class="reward-label">+1 день Super</div>
-            <div class="reward-sub">Каждые 10 рефералов (milestone)</div>
+            <div class="reward-sub">Каждые 10 рефералов</div>
           </div>
         </div>
       </div>
 
-      <!-- Ссылка -->
-      <div class="card" id="link-section">
-        <div class="card-header">Твоя ссылка</div>
-        <div class="link-block">
-          <div class="link-pill">
+      <div class="card">
+        <div class="card-label">Твоя ссылка</div>
+        <div class="link-wrap">
+          <div class="link-row">
             <span class="link-text" id="ref-link-text">загружаю...</span>
             <button class="copy-btn" id="copy-btn">Копировать</button>
           </div>
-          <button class="share-big" id="share-btn">🚀 Поделиться с друзьями</button>
+          <button class="share-btn" id="share-btn">🚀 Поделиться</button>
         </div>
       </div>
 
     </div>
-  </div><!-- /ref-page -->
+  </div>
 
-</div><!-- /pages -->
-
-<!-- ──────────────── BOTTOM BAR ──────────────── -->
-<div class="bottom-bar">
-  <button class="pill-btn active-tab" id="tab-chat">
-    <span class="pill-icon">💬</span>
-    <span>Чат</span>
-  </button>
-  <button class="pill-btn inactive-tab" id="tab-ref">
-    <span class="pill-icon">🎁</span>
-    <span>Рефералы</span>
-  </button>
 </div>
+
+<nav class="nav">
+  <button class="nav-btn active" id="tab-chat">
+    <span class="nav-icon">💬</span> Чат
+  </button>
+  <button class="nav-btn inactive" id="tab-ref">
+    <span class="nav-icon">🎁</span> Рефералы
+  </button>
+</nav>
 
 <script>
 const tg      = window.Telegram.WebApp;
@@ -620,33 +429,33 @@ tg.disableVerticalSwipes?.();
 
 const initData = tg.initData || "";
 
-// ──── NAV ────
-const tabChat = document.getElementById("tab-chat");
-const tabRef  = document.getElementById("tab-ref");
+// ── NAV ──
+const tabChat  = document.getElementById("tab-chat");
+const tabRef   = document.getElementById("tab-ref");
 const chatPage = document.getElementById("chat-page");
 const refPage  = document.getElementById("ref-page");
 let refLoaded  = false;
 
 function setTab(tab) {
   if (tab === "chat") {
-    tabChat.className = "pill-btn active-tab";
-    tabRef.className  = "pill-btn inactive-tab";
+    tabChat.className = "nav-btn active";
+    tabRef.className  = "nav-btn inactive";
     chatPage.classList.add("active");
     refPage.classList.remove("active");
   } else {
-    tabRef.className  = "pill-btn active-tab";
-    tabChat.className = "pill-btn inactive-tab";
+    tabRef.className  = "nav-btn active";
+    tabChat.className = "nav-btn inactive";
     refPage.classList.add("active");
     chatPage.classList.remove("active");
     if (!refLoaded) loadRefStats();
   }
-  tg.HapticFeedback.selectionChanged();
+  tg.HapticFeedback?.selectionChanged();
 }
 
 tabChat.addEventListener("click", () => setTab("chat"));
 tabRef.addEventListener("click",  () => setTab("ref"));
 
-// ──── CHAT ────
+// ── CHAT ──
 const messagesEl = document.getElementById("chat-messages");
 const inputEl    = document.getElementById("chat-input");
 const sendBtn    = document.getElementById("send-btn");
@@ -672,7 +481,7 @@ async function sendMessage() {
   inputEl.value = "";
   inputEl.style.height = "";
   addBubble(text, "user");
-  tg.HapticFeedback.impactOccurred("light");
+  tg.HapticFeedback?.impactOccurred("light");
   const typing = addBubble("", "bot typing");
   try {
     const res  = await fetch(API_URL + "/chat", {
@@ -699,7 +508,7 @@ inputEl.addEventListener("input", () => {
   inputEl.style.height = Math.min(inputEl.scrollHeight, 110) + "px";
 });
 
-// ──── REFERRALS ────
+// ── REFERRALS ──
 let refLink = "";
 
 async function loadRefStats() {
@@ -721,9 +530,9 @@ function renderStats(d) {
   const pct    = nextIn === 0 ? 100 : Math.round(((10 - nextIn) / 10) * 100);
 
   let badge;
-  if      (d.is_super)    badge = `<span class="badge badge-purple">💎 Super до ${d.super_until}</span>`;
-  else if (d.is_premium)  badge = `<span class="badge badge-gold">⭐ Standard до ${d.prem_until}</span>`;
-  else                    badge = `<span class="badge badge-gray">Нет подписки</span>`;
+  if      (d.is_super)   badge = `<span class="badge badge-purple">💎 Super до ${d.super_until}</span>`;
+  else if (d.is_premium) badge = `<span class="badge badge-gold">⭐ Standard до ${d.prem_until}</span>`;
+  else                   badge = `<span class="badge badge-gray">Нет подписки</span>`;
 
   document.getElementById("stats-body").innerHTML = `
     <div class="stat-row">
@@ -746,7 +555,7 @@ function renderStats(d) {
   const ps = document.getElementById("progress-section");
   ps.style.display = "";
   document.getElementById("progress-label").textContent =
-    nextIn === 0 ? "🎉 Получен!" : `ещё ${nextIn}`;
+    nextIn === 0 ? "🎉 Готово!" : `ещё ${nextIn}`;
   setTimeout(() => {
     document.getElementById("progress-fill").style.width = pct + "%";
   }, 80);
@@ -760,38 +569,18 @@ document.getElementById("copy-btn").addEventListener("click", () => {
     const btn = document.getElementById("copy-btn");
     btn.textContent = "✓ Скопировано";
     btn.classList.add("copied");
-    tg.HapticFeedback.notificationOccurred("success");
+    tg.HapticFeedback?.notificationOccurred("success");
     setTimeout(() => { btn.textContent = "Копировать"; btn.classList.remove("copied"); }, 2000);
   });
 });
 
 document.getElementById("share-btn").addEventListener("click", () => {
   if (!refLink) return;
-  tg.HapticFeedback.impactOccurred("medium");
+  tg.HapticFeedback?.impactOccurred("medium");
   tg.openTelegramLink(
     `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent("Попробуй РОФЕС — безумный орущий бот 🔥")}`
   );
 });
-
-// ──── DUCK STICKER ────
-(async () => {
-  try {
-    const resp = await fetch("/sticker");
-    const buf  = await resp.arrayBuffer();
-    const json = JSON.parse(pako.inflate(new Uint8Array(buf), { to: "string" }));
-    lottie.loadAnimation({
-      container:     document.getElementById("duck-lottie"),
-      animationData: json,
-      renderer:      "svg",
-      loop:          true,
-      autoplay:      true,
-    });
-  } catch(e) {
-    document.getElementById("duck-lottie").textContent = "🐥";
-    document.getElementById("duck-lottie").style.fontSize = "80px";
-  }
-})();
-
 </script>
 </body>
 </html>
