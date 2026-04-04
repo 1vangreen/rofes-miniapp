@@ -5,30 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>РОФЕС</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://unpkg.com/@lottiefiles/tgskit@0.0.4/dist/tgskit.js"></script>
+
 <style>
 :root {
-  --bg:       var(--tg-theme-bg-color,           #17212b);
-  --bg2:      var(--tg-theme-secondary-bg-color,  #232e3c);
-  --bg3:      var(--tg-theme-section-bg-color,    #1c2733);
-  --fg:       var(--tg-theme-text-color,          #f5f5f5);
-  --hint:     var(--tg-theme-hint-color,          #708499);
-  --link:     var(--tg-theme-link-color,          #5288c1);
-  --btn:      var(--tg-theme-button-color,        #5288c1);
-  --btn-text: var(--tg-theme-button-text-color,   #ffffff);
-  --sep:      var(--tg-theme-section-separator-color, rgba(255,255,255,0.06));
-  --accent:   var(--btn);
-  --red:      #e53935;
-  --green:    #43a047;
-  --gold:     #f9a825;
-  --purple:   #7b52c1;
-  --radius:   14px;
-  --radius-sm: 10px;
+  --pink:    #f0506e;
+  --pink2:   #ff7597;
+  --coral:   #ff8c69;
+  --bg-page: #f0f0f5;
+  --bg-card: #ffffff;
+  --fg:      #1a1a2e;
+  --fg-sub:  #8a8aaa;
+  --gold:    #f5a623;
+  --purple:  #7b52c1;
+  --green:   #34c759;
+  --sep:     rgba(0,0,0,0.06);
+  --radius:  18px;
+  --shadow:  0 2px 16px rgba(0,0,0,0.08);
+
+  /* Telegram theme overrides */
+  --tg-bg: var(--tg-theme-bg-color, var(--bg-page));
 }
+
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Segoe UI", sans-serif;
+  background: var(--bg-page);
   color: var(--fg);
   height: 100dvh;
   display: flex;
@@ -37,36 +40,9 @@ body {
   font-size: 15px;
 }
 
-/* ──────────────── BOTTOM NAV ──────────────── */
-.nav {
-  display: flex;
-  background: var(--bg2);
-  border-top: 0.5px solid var(--sep);
-  flex-shrink: 0;
-  order: 2;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-.nav-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  padding: 10px 0 8px;
-  cursor: pointer;
-  color: var(--hint);
-  font-size: 11px;
-  font-weight: 500;
-  transition: color .15s;
-  user-select: none;
-}
-.nav-item.active { color: var(--accent); }
-.nav-icon { font-size: 22px; line-height: 1; }
-
 /* ──────────────── PAGES ──────────────── */
 .pages {
   flex: 1;
-  order: 1;
   overflow: hidden;
   position: relative;
 }
@@ -78,8 +54,9 @@ body {
   display: none;
   flex-direction: column;
   opacity: 0;
-  transform: translateY(6px);
-  transition: opacity .18s ease, transform .18s ease;
+  transform: translateY(8px);
+  transition: opacity .2s ease, transform .2s ease;
+  padding-bottom: 90px;
 }
 .page.active {
   display: flex;
@@ -87,117 +64,329 @@ body {
   transform: translateY(0);
 }
 
-/* ──────────────── SHARED COMPONENTS ──────────────── */
-.section {
-  background: var(--bg2);
-  border-radius: var(--radius);
-  margin: 0 12px;
-  overflow: hidden;
+/* ──────────────── BOTTOM PILL BUTTONS ──────────────── */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0; right: 0;
+  display: flex;
+  gap: 10px;
+  padding: 12px 16px;
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+  background: rgba(240,240,245,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 100;
 }
-.section + .section { margin-top: 8px; }
-.section-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--hint);
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  padding: 16px 16px 6px;
-}
-.row {
+
+.pill-btn {
+  flex: 1;
   display: flex;
   align-items: center;
-  padding: 13px 16px;
-  border-bottom: 0.5px solid var(--sep);
-  gap: 12px;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  border-radius: 50px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: transform .12s, opacity .12s;
+  user-select: none;
 }
-.row:last-child { border-bottom: none; }
-.row-label { flex: 1; font-size: 15px; color: var(--fg); }
-.row-value { font-size: 15px; font-weight: 600; color: var(--fg); }
-.row-sub { font-size: 13px; color: var(--hint); margin-top: 2px; }
+.pill-btn:active { transform: scale(.95); opacity: .85; }
+
+.pill-btn.primary {
+  background: linear-gradient(135deg, var(--pink) 0%, var(--coral) 100%);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(240,80,110,0.35);
+}
+.pill-btn.secondary {
+  background: var(--bg-card);
+  color: var(--fg);
+  box-shadow: var(--shadow);
+}
+.pill-btn.active-tab {
+  background: linear-gradient(135deg, var(--pink) 0%, var(--coral) 100%);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(240,80,110,0.3);
+}
+.pill-btn.inactive-tab {
+  background: var(--bg-card);
+  color: var(--fg-sub);
+  box-shadow: var(--shadow);
+}
+
+.pill-icon { font-size: 20px; }
+.pill-badge {
+  background: var(--pink);
+  color: #fff;
+  border-radius: 50px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* ──────────────── HERO ──────────────── */
+.hero {
+  background: linear-gradient(160deg, #ff6b9d 0%, #f0506e 40%, #ff8c69 100%);
+  border-radius: 0 0 28px 28px;
+  padding: 28px 20px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 180px; height: 180px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 50%;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -50px; left: -20px;
+  width: 140px; height: 140px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 50%;
+}
+
+.duck-wrap {
+  font-size: 90px;
+  line-height: 1;
+  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.2));
+  animation: duckBounce 2.4s ease-in-out infinite;
+  position: relative;
+  z-index: 1;
+}
+@keyframes duckBounce {
+  0%,100% { transform: translateY(0) rotate(-3deg); }
+  50%      { transform: translateY(-8px) rotate(3deg); }
+}
+
+.hero-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #fff;
+  text-align: center;
+  letter-spacing: -0.5px;
+  position: relative; z-index: 1;
+}
+.hero-sub {
+  background: rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.9);
+  border-radius: 50px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  position: relative; z-index: 1;
+  backdrop-filter: blur(10px);
+}
+
+/* ──────────────── CARDS ──────────────── */
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 14px 0;
+}
+
+.card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.card-header {
+  padding: 16px 16px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--fg-sub);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--sep);
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-label { font-size: 15px; color: var(--fg); }
+.stat-val {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--fg);
+}
 
 .badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 10px;
-  border-radius: 20px;
+  padding: 4px 10px;
+  border-radius: 50px;
   font-size: 12px;
   font-weight: 600;
 }
-.badge-gold   { background: rgba(249,168,37,.15); color: var(--gold); }
-.badge-purple { background: rgba(123,82,193,.15); color: var(--purple); }
-.badge-gray   { background: rgba(112,132,153,.15); color: var(--hint); }
+.badge-gold   { background: rgba(245,166,35,.12); color: #d4891a; }
+.badge-purple { background: rgba(123,82,193,.12); color: var(--purple); }
+.badge-gray   { background: rgba(138,138,170,.1); color: var(--fg-sub); }
 
-.btn {
-  width: 100%;
-  background: var(--btn);
-  color: var(--btn-text);
+/* Progress */
+.progress-card { padding: 14px 16px 16px; }
+.progress-top  {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--fg-sub);
+  margin-bottom: 10px;
+}
+.progress-top strong { color: var(--fg); }
+.progress-track {
+  height: 8px;
+  background: rgba(0,0,0,0.07);
+  border-radius: 50px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--pink) 0%, var(--coral) 100%);
+  border-radius: 50px;
+  transition: width .6s cubic-bezier(.34,1.56,.64,1);
+}
+
+/* Reward rows */
+.reward-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--sep);
+}
+.reward-row:last-child { border-bottom: none; }
+.reward-icon {
+  width: 42px; height: 42px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.ri-gold   { background: rgba(245,166,35,.12); }
+.ri-purple { background: rgba(123,82,193,.12); }
+.reward-label { font-size: 15px; font-weight: 600; color: var(--fg); }
+.reward-sub   { font-size: 12px; color: var(--fg-sub); margin-top: 2px; }
+
+/* Link card */
+.link-block { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+.link-pill {
+  display: flex;
+  align-items: center;
+  background: var(--bg-page);
+  border-radius: 12px;
+  padding: 0 6px 0 14px;
+  gap: 8px;
+  min-height: 46px;
+}
+.link-text {
+  flex: 1;
+  font-size: 13px;
+  color: var(--fg-sub);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.copy-btn {
+  background: var(--bg-card);
   border: none;
-  border-radius: var(--radius-sm);
-  padding: 14px;
-  font-size: 15px;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 13px;
   font-weight: 600;
+  color: var(--pink);
   cursor: pointer;
-  transition: opacity .12s, transform .1s;
-  text-align: center;
+  flex-shrink: 0;
+  transition: opacity .12s;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
 }
-.btn:active { opacity: .8; transform: scale(.98); }
-.btn-outline {
-  background: transparent;
-  border: 1.5px solid var(--accent);
-  color: var(--accent);
+.copy-btn:active { opacity: .7; }
+.copy-btn.copied { color: var(--green); }
+
+.share-big {
+  width: 100%;
+  background: linear-gradient(135deg, var(--pink) 0%, var(--coral) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 15px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .12s, opacity .12s;
+  box-shadow: 0 4px 20px rgba(240,80,110,0.3);
+  letter-spacing: -0.2px;
 }
+.share-big:active { transform: scale(.97); opacity: .9; }
 
 /* ──────────────── CHAT PAGE ──────────────── */
-#chat-page { padding-bottom: 0; }
+#chat-page { padding-bottom: 90px; }
 
 .chat-header {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 14px 16px 12px;
-  background: var(--bg2);
-  border-bottom: 0.5px solid var(--sep);
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--sep);
   flex-shrink: 0;
 }
 .avatar {
-  width: 40px; height: 40px;
+  width: 42px; height: 42px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--red) 0%, #ff6b35 100%);
+  background: linear-gradient(135deg, var(--pink) 0%, var(--coral) 100%);
   display: flex; align-items: center; justify-content: center;
-  font-size: 20px;
+  font-size: 22px;
   flex-shrink: 0;
 }
-.chat-name { font-weight: 600; font-size: 16px; }
-.chat-sub  { font-size: 12px; color: var(--hint); margin-top: 1px; }
+.chat-name { font-weight: 700; font-size: 16px; color: var(--fg); }
+.chat-sub  { font-size: 12px; color: var(--fg-sub); margin-top: 1px; }
 .online-dot {
-  width: 8px; height: 8px;
+  width: 9px; height: 9px;
   background: var(--green);
   border-radius: 50%;
   flex-shrink: 0;
-  box-shadow: 0 0 0 2px var(--bg2);
-  margin-top: auto;
-  margin-bottom: 2px;
+  margin-left: auto;
+  box-shadow: 0 0 0 2px rgba(52,199,89,0.2);
 }
 
 #chat-messages {
   flex: 1;
   overflow-y: auto;
-  padding: 12px 12px 8px;
+  padding: 14px 14px 10px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  background: var(--bg-page);
 }
 
 .bubble {
   max-width: 78%;
-  padding: 9px 13px;
-  border-radius: 16px;
+  padding: 10px 14px;
+  border-radius: 18px;
   font-size: 15px;
   line-height: 1.45;
   word-break: break-word;
   white-space: pre-wrap;
-  animation: pop .18s ease;
+  animation: pop .16s ease;
 }
 @keyframes pop {
   from { opacity:0; transform: scale(.94) translateY(4px); }
@@ -205,29 +394,30 @@ body {
 }
 .bubble.user {
   align-self: flex-end;
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--pink) 0%, var(--coral) 100%);
   color: #fff;
-  border-bottom-right-radius: 4px;
+  border-bottom-right-radius: 5px;
+  box-shadow: 0 2px 12px rgba(240,80,110,0.25);
 }
 .bubble.bot {
   align-self: flex-start;
-  background: var(--bg2);
+  background: var(--bg-card);
   color: var(--fg);
-  border-bottom-left-radius: 4px;
+  border-bottom-left-radius: 5px;
+  box-shadow: var(--shadow);
 }
 .bubble.typing {
-  color: var(--hint);
-  font-style: normal;
+  color: var(--fg-sub);
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 11px 16px;
+  padding: 12px 16px;
 }
 .dots span {
   display: inline-block;
   width: 6px; height: 6px;
   border-radius: 50%;
-  background: var(--hint);
+  background: var(--fg-sub);
   animation: blink 1.2s infinite;
 }
 .dots span:nth-child(2) { animation-delay: .2s; }
@@ -241,17 +431,17 @@ body {
   display: flex;
   align-items: flex-end;
   gap: 8px;
-  padding: 8px 10px;
-  padding-bottom: max(8px, env(safe-area-inset-bottom));
-  background: var(--bg2);
-  border-top: 0.5px solid var(--sep);
+  padding: 10px 12px;
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+  background: var(--bg-card);
+  border-top: 1px solid var(--sep);
   flex-shrink: 0;
 }
 #chat-input {
   flex: 1;
-  background: var(--bg);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 20px;
+  background: var(--bg-page);
+  border: 1.5px solid transparent;
+  border-radius: 22px;
   padding: 10px 16px;
   color: var(--fg);
   font-size: 15px;
@@ -260,154 +450,49 @@ body {
   max-height: 110px;
   font-family: inherit;
   line-height: 1.4;
+  transition: border-color .15s;
 }
-#chat-input::placeholder { color: var(--hint); }
+#chat-input:focus { border-color: rgba(240,80,110,0.3); }
+#chat-input::placeholder { color: var(--fg-sub); }
 #send-btn {
-  width: 40px; height: 40px;
+  width: 42px; height: 42px;
   border-radius: 50%;
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--pink) 0%, var(--coral) 100%);
   border: none;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
   transition: opacity .12s, transform .1s;
+  box-shadow: 0 3px 12px rgba(240,80,110,0.35);
 }
-#send-btn:active { opacity:.75; transform: scale(.92); }
+#send-btn:active { opacity:.75; transform: scale(.9); }
 #send-btn svg { width: 18px; height: 18px; fill: #fff; }
 
-/* ──────────────── REF PAGE ──────────────── */
-#ref-page { gap: 0; padding-top: 0; }
-
-.ref-hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 24px 20px 20px;
-  gap: 4px;
-  text-align: center;
-}
-.ref-duck { font-size: 52px; line-height: 1; animation: wobble 2.5s ease-in-out infinite; }
-@keyframes wobble {
-  0%,100% { transform: rotate(-4deg) scale(1); }
-  50%      { transform: rotate(4deg) scale(1.06); }
-}
-.ref-hero h1 { font-size: 20px; font-weight: 700; margin-top: 10px; }
-.ref-hero p  { color: var(--hint); font-size: 13px; margin-top: 4px; }
-
-.ref-scroll { display: flex; flex-direction: column; gap: 8px; padding: 4px 0 20px; }
-
-/* Progress */
-.progress-row {
-  padding: 14px 16px;
-}
-.progress-top {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  margin-bottom: 8px;
-}
-.progress-top span:first-child { color: var(--hint); }
-.progress-top span:last-child  { font-weight: 600; }
-.progress-track {
-  height: 6px;
-  background: rgba(255,255,255,0.07);
-  border-radius: 3px;
-  overflow: hidden;
-}
-.progress-fill {
-  height: 100%;
-  border-radius: 3px;
-  background: linear-gradient(90deg, var(--accent) 0%, #7b52c1 100%);
-  transition: width .6s cubic-bezier(.4,0,.2,1);
-  min-width: 4px;
-}
-
-/* Link */
-.link-row {
-  padding: 12px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.link-box {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--bg);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: var(--radius-sm);
-  padding: 10px 12px;
-}
-.link-text {
-  flex: 1;
-  font-size: 12px;
-  color: var(--link);
-  word-break: break-all;
-  font-family: "SFMono-Regular", Consolas, monospace;
-  line-height: 1.4;
-}
-.copy-btn {
-  background: var(--bg2);
-  color: var(--fg);
-  border: none;
-  border-radius: 8px;
-  padding: 7px 12px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  flex-shrink: 0;
-  white-space: nowrap;
-  transition: opacity .12s;
-}
-.copy-btn:active { opacity: .7; }
-.copied { color: var(--green) !important; }
-
-/* Rewards */
-.reward-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-bottom: 0.5px solid var(--sep);
-}
-.reward-row:last-child { border-bottom: none; }
-.reward-icon {
-  width: 40px; height: 40px;
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-  flex-shrink: 0;
-}
-.ri-gold   { background: rgba(249,168,37,.12); }
-.ri-purple { background: rgba(123,82,193,.12); }
-.reward-label { font-size: 14px; font-weight: 600; }
-.reward-sub   { font-size: 12px; color: var(--hint); margin-top: 2px; }
-
-/* Skeleton */
+/* ──────────────── SKELETON ──────────────── */
 .skel {
-  background: rgba(255,255,255,0.05);
+  background: linear-gradient(90deg, rgba(0,0,0,0.06) 25%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.06) 75%);
+  background-size: 200% 100%;
   border-radius: 8px;
-  animation: pulse 1.4s ease-in-out infinite;
+  animation: shimmer 1.4s ease-in-out infinite;
 }
-@keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:.9} }
-.skel-h { height: 16px; margin-bottom: 8px; }
-.skel-h.short { width: 60%; }
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+.skel-h { height: 16px; margin-bottom: 8px; width: 100%; }
+.skel-h.short { width: 55%; }
 
 .error-note {
   text-align: center;
   padding: 20px 16px;
-  color: var(--hint);
+  color: var(--fg-sub);
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 </style>
 </head>
 <body>
 
-<!-- ──────────────── PAGES ──────────────── -->
 <div class="pages">
 
-  <!-- CHAT -->
+  <!-- ──── CHAT PAGE ──── -->
   <div id="chat-page" class="page active">
     <div class="chat-header">
       <div class="avatar">🔥</div>
@@ -419,7 +504,7 @@ body {
     </div>
 
     <div id="chat-messages">
-      <div class="bubble bot">РОФЕС В ДЕЛЕ 🔥 ЧЕ НАДО НАХУЙ</div>
+      <div class="bubble bot">РОФЕС В ДЕЛЕ 🔥 ЧЕ НАДО</div>
     </div>
 
     <div class="chat-footer">
@@ -430,34 +515,45 @@ body {
     </div>
   </div>
 
-  <!-- REFERRALS -->
+  <!-- ──── REF PAGE ──── -->
   <div id="ref-page" class="page">
-    <div class="ref-hero">
-      <div class="ref-duck">🦆</div>
-      <h1>Реферальная программа</h1>
-      <p>Приводи друзей — получай премиум</p>
+
+    <!-- HERO с уткой -->
+    <div class="hero">
+      <div class="duck-wrap">
+        <tgs-player src="/sticker" style="width:120px;height:120px" autoplay loop></tgs-player>
+      </div>
+      <div class="hero-title">Реферальная программа</div>
+      <div class="hero-sub">Приводи друзей — получай Premium 🎁</div>
     </div>
 
-    <div class="ref-scroll">
+    <div class="cards">
 
-      <!-- Stats card -->
-      <div class="section" id="stats-section">
-        <div class="section-title">Твоя статистика</div>
+      <!-- Статистика -->
+      <div class="card">
+        <div class="card-header">Твоя статистика</div>
         <div id="stats-body">
-          <div class="row" style="flex-direction:column;align-items:flex-start;gap:8px">
+          <div class="stat-row">
+            <div class="skel skel-h" style="width:35%"></div>
+            <div class="skel skel-h" style="width:45%"></div>
+          </div>
+          <div class="stat-row">
+            <div class="skel skel-h" style="width:50%"></div>
+            <div class="skel skel-h short"></div>
+          </div>
+          <div class="stat-row">
             <div class="skel skel-h" style="width:40%"></div>
-            <div class="skel skel-h" style="width:70%"></div>
             <div class="skel skel-h short"></div>
           </div>
         </div>
       </div>
 
-      <!-- Progress card -->
-      <div class="section" id="progress-section" style="display:none">
-        <div class="progress-row">
+      <!-- Прогресс до Super -->
+      <div class="card" id="progress-section" style="display:none">
+        <div class="progress-card">
           <div class="progress-top">
             <span>До следующего 💎 Super-дня</span>
-            <span id="progress-label">—</span>
+            <strong id="progress-label">—</strong>
           </div>
           <div class="progress-track">
             <div class="progress-fill" id="progress-fill" style="width:0%"></div>
@@ -465,14 +561,14 @@ body {
         </div>
       </div>
 
-      <!-- Rewards -->
-      <div class="section">
-        <div class="section-title">Награды</div>
+      <!-- Награды -->
+      <div class="card">
+        <div class="card-header">Награды</div>
         <div class="reward-row">
           <div class="reward-icon ri-gold">⭐</div>
           <div>
             <div class="reward-label">+1 день Standard</div>
-            <div class="reward-sub">За каждого приглашённого</div>
+            <div class="reward-sub">За каждого приглашённого друга</div>
           </div>
         </div>
         <div class="reward-row">
@@ -484,34 +580,34 @@ body {
         </div>
       </div>
 
-      <!-- Link card -->
-      <div class="section" id="link-section">
-        <div class="section-title">Твоя ссылка</div>
-        <div class="link-row">
-          <div class="link-box">
+      <!-- Ссылка -->
+      <div class="card" id="link-section">
+        <div class="card-header">Твоя ссылка</div>
+        <div class="link-block">
+          <div class="link-pill">
             <span class="link-text" id="ref-link-text">загружаю...</span>
             <button class="copy-btn" id="copy-btn">Копировать</button>
           </div>
-          <button class="btn" id="share-btn">🚀 Поделиться</button>
+          <button class="share-big" id="share-btn">🚀 Поделиться с друзьями</button>
         </div>
       </div>
 
-    </div><!-- /ref-scroll -->
+    </div>
   </div><!-- /ref-page -->
 
 </div><!-- /pages -->
 
-<!-- ──────────────── BOTTOM NAV ──────────────── -->
-<nav class="nav">
-  <div class="nav-item active" data-page="chat">
-    <span class="nav-icon">💬</span>
+<!-- ──────────────── BOTTOM BAR ──────────────── -->
+<div class="bottom-bar">
+  <button class="pill-btn active-tab" id="tab-chat">
+    <span class="pill-icon">💬</span>
     <span>Чат</span>
-  </div>
-  <div class="nav-item" data-page="ref">
-    <span class="nav-icon">💸</span>
+  </button>
+  <button class="pill-btn inactive-tab" id="tab-ref">
+    <span class="pill-icon">🎁</span>
     <span>Рефералы</span>
-  </div>
-</nav>
+  </button>
+</div>
 
 <script>
 const tg      = window.Telegram.WebApp;
@@ -523,28 +619,37 @@ tg.disableVerticalSwipes?.();
 
 const initData = tg.initData || "";
 
-// ──────────────── NAVIGATION ────────────────
-const navItems = document.querySelectorAll(".nav-item");
-const pages    = document.querySelectorAll(".page");
-let   refLoaded = false;
+// ──── NAV ────
+const tabChat = document.getElementById("tab-chat");
+const tabRef  = document.getElementById("tab-ref");
+const chatPage = document.getElementById("chat-page");
+const refPage  = document.getElementById("ref-page");
+let refLoaded  = false;
 
-navItems.forEach(item => {
-  item.addEventListener("click", () => {
-    const target = item.dataset.page;
-    navItems.forEach(n => n.classList.remove("active"));
-    item.classList.add("active");
-    pages.forEach(p => p.classList.remove("active"));
-    document.getElementById(target + "-page").classList.add("active");
-    tg.HapticFeedback.selectionChanged();
-    if (target === "ref" && !refLoaded) loadRefStats();
-  });
-});
+function setTab(tab) {
+  if (tab === "chat") {
+    tabChat.className = "pill-btn active-tab";
+    tabRef.className  = "pill-btn inactive-tab";
+    chatPage.classList.add("active");
+    refPage.classList.remove("active");
+  } else {
+    tabRef.className  = "pill-btn active-tab";
+    tabChat.className = "pill-btn inactive-tab";
+    refPage.classList.add("active");
+    chatPage.classList.remove("active");
+    if (!refLoaded) loadRefStats();
+  }
+  tg.HapticFeedback.selectionChanged();
+}
 
-// ──────────────── CHAT ────────────────
+tabChat.addEventListener("click", () => setTab("chat"));
+tabRef.addEventListener("click",  () => setTab("ref"));
+
+// ──── CHAT ────
 const messagesEl = document.getElementById("chat-messages");
 const inputEl    = document.getElementById("chat-input");
 const sendBtn    = document.getElementById("send-btn");
-let   sending    = false;
+let sending = false;
 
 function addBubble(text, cls) {
   const d = document.createElement("div");
@@ -593,7 +698,7 @@ inputEl.addEventListener("input", () => {
   inputEl.style.height = Math.min(inputEl.scrollHeight, 110) + "px";
 });
 
-// ──────────────── REFERRALS ────────────────
+// ──── REFERRALS ────
 let refLink = "";
 
 async function loadRefStats() {
@@ -602,7 +707,7 @@ async function loadRefStats() {
     if (!res.ok) throw new Error(res.status);
     const d = await res.json();
     refLoaded = true;
-    refLink   = d.ref_link || "";
+    refLink = d.ref_link || "";
     renderStats(d);
   } catch {
     document.getElementById("stats-body").innerHTML =
@@ -611,33 +716,32 @@ async function loadRefStats() {
 }
 
 function renderStats(d) {
-  const nextIn   = d.next_super_in;
-  const pct      = nextIn === 0 ? 100 : Math.round(((10 - nextIn) / 10) * 100);
+  const nextIn = d.next_super_in;
+  const pct    = nextIn === 0 ? 100 : Math.round(((10 - nextIn) / 10) * 100);
 
-  let statusBadge;
-  if (d.is_super)    statusBadge = `<span class="badge badge-purple">💎 Super до ${d.super_until}</span>`;
-  else if (d.is_premium) statusBadge = `<span class="badge badge-gold">⭐ Standard до ${d.prem_until}</span>`;
-  else               statusBadge = `<span class="badge badge-gray">Нет подписки</span>`;
+  let badge;
+  if      (d.is_super)    badge = `<span class="badge badge-purple">💎 Super до ${d.super_until}</span>`;
+  else if (d.is_premium)  badge = `<span class="badge badge-gold">⭐ Standard до ${d.prem_until}</span>`;
+  else                    badge = `<span class="badge badge-gray">Нет подписки</span>`;
 
   document.getElementById("stats-body").innerHTML = `
-    <div class="row">
-      <span class="row-label">Статус</span>
-      <span class="row-value">${statusBadge}</span>
+    <div class="stat-row">
+      <span class="stat-label">Статус</span>
+      <span class="stat-val">${badge}</span>
     </div>
-    <div class="row">
-      <span class="row-label">Рефералов</span>
-      <span class="row-value">${d.total}</span>
+    <div class="stat-row">
+      <span class="stat-label">Рефералов</span>
+      <span class="stat-val">${d.total}</span>
     </div>
-    <div class="row">
-      <span class="row-label">Дней Standard</span>
-      <span class="row-value" style="color:var(--gold)">+${d.std_days_total}</span>
+    <div class="stat-row">
+      <span class="stat-label">Дней Standard</span>
+      <span class="stat-val" style="color:var(--gold)">+${d.std_days_total}</span>
     </div>
-    <div class="row">
-      <span class="row-label">Дней Super</span>
-      <span class="row-value" style="color:var(--purple)">+${d.super_days_total}</span>
+    <div class="stat-row">
+      <span class="stat-label">Дней Super</span>
+      <span class="stat-val" style="color:var(--purple)">+${d.super_days_total}</span>
     </div>`;
 
-  // progress
   const ps = document.getElementById("progress-section");
   ps.style.display = "";
   document.getElementById("progress-label").textContent =
@@ -646,7 +750,6 @@ function renderStats(d) {
     document.getElementById("progress-fill").style.width = pct + "%";
   }, 80);
 
-  // link
   document.getElementById("ref-link-text").textContent = d.ref_link || "—";
 }
 
